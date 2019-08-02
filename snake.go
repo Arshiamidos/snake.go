@@ -91,7 +91,7 @@ func CalcSnakePosition(snake [][]int, direction string) {
 		s[0] = s[0] - 1
 	} else if direction == "S" {
 		s := snake[0]
-		s[1] = s[1] + 1
+		s[1] = s[1] - 1
 	} else if direction == "E" {
 		s := snake[0]
 		s[0] = s[0] + 1
