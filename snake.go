@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"sync"
 	"time"
@@ -9,7 +10,7 @@ import (
 	term "github.com/nsf/termbox-go"
 )
 
-const BOARD_SIZE = 20
+const BOARD_SIZE = 10
 
 func init() {
 
@@ -32,7 +33,7 @@ func main() {
 		{BOARD_SIZE / 2, BOARD_SIZE / 2},
 	}
 	goal := [][]int{
-		{5, 5},
+		{rand.Intn(BOARD_SIZE), rand.Intn(BOARD_SIZE)},
 	}
 
 	var wg sync.WaitGroup
@@ -42,14 +43,12 @@ func main() {
 	go func() { //render base on input recieve
 		for {
 			select {
-			case m := <-input:
-				m = m
-				ShowBoardSnakeGoal(board, snake, goal)
+			case <-input:
+				time.Now()
 			case <-timer:
 				ClearScreen()
-				fmt.Println(snake)
-				CalcSnakePosition(snake, direction)
-				ShowBoardSnakeGoal(board, snake, goal)
+				CalcSnakePosition(&snake, direction)
+				ShowBoardSnakeGoal(board, &snake, goal)
 
 			}
 		}
@@ -59,49 +58,48 @@ func main() {
 		for {
 			ev := term.PollEvent()
 			input <- 1
+			//fmt.Println("wwwwww")
+			//time.Sleep(2 * time.Second)
 			switch ev.Key {
 			case term.KeyEsc:
 				os.Exit(1)
 			case term.KeyArrowDown:
 				direction = "S"
-				reset()
+
 			case term.KeyArrowUp:
 				direction = "N"
-				reset()
+
 			case term.KeyArrowLeft:
 				direction = "W"
-				reset()
+
 			case term.KeyArrowRight:
 				direction = "E"
-				reset()
-			}
-			//snake = append(snake, []int{1, 1})
 
-			//fmt.Println(snake)
-			//time.Sleep(5 * time.Second)
+			}
 		}
 	}()
 
 	wg.Wait() //wait for goroutins
 
 }
-func CalcSnakePosition(snake [][]int, direction string) {
+func CalcSnakePosition(snake *[][]int, direction string) {
 	if direction == "W" {
-		s := snake[0]
+		s := (*snake)[0]
 		s[1] = s[1] - 1
 	} else if direction == "S" {
-		s := snake[0]
+		s := (*snake)[0]
 		s[0] = s[0] + 1
 	} else if direction == "E" {
-		s := snake[0]
+		s := (*snake)[0]
 		s[1] = s[1] + 1
 	} else if direction == "N" {
-		s := snake[0]
+		s := (*snake)[0]
 		s[0] = s[0] - 1
 	}
 }
 func ClearScreen() {
 	fmt.Println("\033[2J")
+	reset()
 }
 func Setup(board [][]int) {
 	for i := 0; i < BOARD_SIZE; i++ {
@@ -112,24 +110,31 @@ func Setup(board [][]int) {
 		}
 	}
 }
-func ShowBoardSnakeGoal(board [][]int, snake [][]int, goal [][]int) {
+func ShowBoardSnakeGoal(board [][]int, snake *[][]int, goal [][]int) {
 	for i := 0; i < BOARD_SIZE; i++ { //vertical axis
 		for j := 0; j < BOARD_SIZE; j++ { //horizontal axis
 
-			if goal[0][0] == i && goal[0][1] == j && snake[0][0] == i && snake[0][1] == j {
+			if goal[0][0] == i && goal[0][1] == j && (*snake)[0][0] == i && (*snake)[0][1] == j {
 				fmt.Print("🤡 ")
+				goal[0] = []int{rand.Intn(BOARD_SIZE), rand.Intn(BOARD_SIZE)}
+				*snake = append(*snake, []int{i, j})
+				fmt.Println(*snake)
+
 			} else if goal[0][0] == i && goal[0][1] == j {
 				fmt.Print("❤️ ")
 			} else {
-				for k, s := range snake {
+				meetSnake := false
+				for k, s := range *snake {
 					if k == 0 && s[0] == i && s[1] == j {
 						fmt.Print("👹 ")
+						meetSnake = true
 					} else if k != 0 && s[0] == i && s[1] == j {
 						fmt.Print("🔷 ")
-					} else {
-						fmt.Print("⏹ ")
+						meetSnake = true
 					}
-
+				}
+				if !meetSnake {
+					fmt.Print("⏹ ")
 				}
 			}
 
