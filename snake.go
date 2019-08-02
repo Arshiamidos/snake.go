@@ -88,16 +88,16 @@ func main() {
 func CalcSnakePosition(snake [][]int, direction string) {
 	if direction == "W" {
 		s := snake[0]
-		s[0] = s[0] - 1
+		s[1] = s[1] - 1
 	} else if direction == "S" {
 		s := snake[0]
-		s[1] = s[1] - 1
+		s[0] = s[0] + 1
 	} else if direction == "E" {
 		s := snake[0]
-		s[0] = s[0] + 1
+		s[1] = s[1] + 1
 	} else if direction == "N" {
 		s := snake[0]
-		s[1] = s[1] + 1
+		s[0] = s[0] - 1
 	}
 }
 func ClearScreen() {
@@ -113,8 +113,8 @@ func Setup(board [][]int) {
 	}
 }
 func ShowBoardSnakeGoal(board [][]int, snake [][]int, goal [][]int) {
-	for i := 0; i < BOARD_SIZE; i++ {
-		for j := 0; j < BOARD_SIZE; j++ {
+	for i := 0; i < BOARD_SIZE; i++ { //vertical axis
+		for j := 0; j < BOARD_SIZE; j++ { //horizontal axis
 
 			if goal[0][0] == i && goal[0][1] == j && snake[0][0] == i && snake[0][1] == j {
 				fmt.Print("🤡 ")
@@ -124,7 +124,7 @@ func ShowBoardSnakeGoal(board [][]int, snake [][]int, goal [][]int) {
 				for k, s := range snake {
 					if k == 0 && s[0] == i && s[1] == j {
 						fmt.Print("👹 ")
-					} else if k != 0 && s[k] == i && s[k] == j {
+					} else if k != 0 && s[0] == i && s[1] == j {
 						fmt.Print("🔷 ")
 					} else {
 						fmt.Print("⏹ ")
